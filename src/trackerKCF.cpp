@@ -74,6 +74,7 @@ namespace cv{
     TrackerKCFImpl( const TrackerKCF::Params &parameters = TrackerKCF::Params() );
     void read( const FileNode& /*fn*/ );
     void write( FileStorage& /*fs*/ ) const;
+    void setROI(const int zoom_x=2, const int zoom_y=2);
     void setFeatureExtractor(void (*f)(const Mat, const Rect, Mat&), bool pca_func = false);
 
   protected:
@@ -156,6 +157,10 @@ namespace cv{
     bool resizeImage; // resize the image whenever needed and the patch size is large
 
     int frame;
+
+    // custom roi size
+    int zoom_x = 2;
+    int zoom_y = 2;
   };
 
   /*
@@ -211,11 +216,17 @@ namespace cv{
     //roi.y-=roi.height/2;
     //roi.width*=2;
     //roi.height*=2;
-    roi.x-=roi.width/2;
-    roi.y-=roi.height*2;
-    roi.width*=2;
-    roi.height*=5;
     
+    //roi.x-=roi.width/2;
+    //roi.y-=roi.height*2;
+    //roi.width*=2;
+    //roi.height*=5;
+    
+    roi.x -= roi.width * (((float)zoom_x-1)/2);
+    roi.y -= roi.height * (((float)zoom_y-1)/2);
+    roi.width*=zoom_x;
+    roi.height*=zoom_y;
+
 
     // initialize the hann window filter
     createHanningWindow(hann, roi.size(), CV_64F);
@@ -355,10 +366,16 @@ namespace cv{
     int tmp_y = resizeImage ? roi.y*2:roi.y;
     int tmp_w = resizeImage ? roi.width*2:roi.width;
     int tmp_h = resizeImage ? roi.height*2:roi.height;
-    boundingBox.x = tmp_x + tmp_w/4;
-    boundingBox.y = tmp_y + tmp_h/5*2;
-    boundingBox.width = tmp_w/2; 
-    boundingBox.height = tmp_h/5; 
+
+    //boundingBox.x = tmp_x + tmp_w/4;
+    //boundingBox.y = tmp_y + tmp_h/5*2;
+    //boundingBox.width = tmp_w/2; 
+    //boundingBox.height = tmp_h/5; 
+
+    boundingBox.x = tmp_x + tmp_w*(1-1/((float)zoom_x))/2;
+    boundingBox.y = tmp_y + tmp_h*(1-1/((float)zoom_y))/2;
+    boundingBox.width = tmp_w/zoom_x; 
+    boundingBox.height = tmp_h/zoom_y; 
 
     //// debug
     //std::ofstream logfile("/home/duino/debug.log");
@@ -825,6 +842,12 @@ namespace cv{
     ifft2(spec2_data,response_data);
   }
 
+  void TrackerKCFImpl::setROI(const int _zoom_x, const int _zoom_y){
+    CV_Assert(_zoom_x > 0 && _zoom_y > 0);
+    zoom_x = _zoom_x;
+    zoom_y = _zoom_y; 
+  }
+
   void TrackerKCFImpl::setFeatureExtractor(void (*f)(const Mat, const Rect, Mat&), bool pca_func){
     if(pca_func){
       extractor_pca.push_back(f);
@@ -861,6 +884,9 @@ namespace cv{
 
   void TrackerKCF::Params::write( cv::FileStorage& /*fs*/ ) const{}
 
+  void TrackerKCF::setROI(const int zoom_x, const int zoom_y){}
+
   void TrackerKCF::setFeatureExtractor(void (*)(const Mat, const Rect, Mat&), bool ){};
+
 
 } /* namespace cv */

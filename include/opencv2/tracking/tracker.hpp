@@ -1249,6 +1249,8 @@ public:
 		unsigned int desc_npca;       //!<  non-compressed descriptors of TrackerKCF::MODE
 	};
 
+    virtual void setROI(const int zoom_x, const int zoom_y);
+
 	virtual void setFeatureExtractor(void(*)(const Mat, const Rect, Mat&), bool pca_func = false);
 
 	/** @brief Constructor
