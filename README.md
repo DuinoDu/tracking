@@ -1,11 +1,11 @@
 # Tracking module in [opencv_contrib](https://github.com/opencv/opencv_contrib/tree/master/modules/tracking)
 
-Edition
+Log
 ==================
 
 2016.12.1 Add **remove(int)** to MultiTracker
 
-2017.3.4 Add **setROI(int, int) to TrackerKCF**
+2017.3.4 Add **setROI(int, int)** to TrackerKCF
 
 Object tracking API
 ===================
